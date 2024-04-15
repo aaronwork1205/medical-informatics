@@ -1,47 +1,43 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
-import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
-import ListItemText from "@mui/material/ListItemText";
-import Modal from "@mui/material/Modal";
 import { Card } from "@mui/material";
-import {
-  styled,
-  createTheme,
-  ThemeProvider,
-  duration,
-} from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Divider from "@mui/material/Divider";
 import data from "./data.js";
 
 const buttonTheme = createTheme({
   palette: {
     primary: {
-      main: "#9146D8",
-    },
-    secondary: {
       main: "#D9D9D9",
     },
   },
 });
 
 const EHR = () => {
-  const [familyName, setFamilyName] = useState(
-    data.entry[0].resource.name[0].family
-  );
-  const [givenName, setGivenName] = useState(
-    data.entry[0].resource.name[0].given
-  );
-  const [gender, setGender] = useState(data.entry[0].resource.gender);
-  const [age, setAge] = useState(data.entry[0].resource.birthDate);
+  const [familyName, setFamilyName] = useState("");
+  const [givenName, setGivenName] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [clickedIndex, setClickedIndex] = useState(null);
+  const [diagnose, setDiagnose] = useState("");
 
-  const handleClick = () => {};
+  const handleClick = (index) => {
+    setFamilyName(data[index].entry[0].resource.name[0].family);
+    setGivenName(data[index].entry[0].resource.name[0].given);
+    setGender(data[index].entry[0].resource.gender);
+    setBirthDate(data[index].entry[0].resource.birthDate);
+    setClickedIndex(index);
+    setDiagnose("");
+  };
+
+  const handleChange = (event) => {
+    setDiagnose(event.target.value);
+  };
 
   return (
     <ThemeProvider theme={buttonTheme}>
@@ -49,24 +45,49 @@ const EHR = () => {
         <Typography sx={styles.title}>AI Diagnose</Typography>
         <Box sx={styles.row}>
           <MenuList>
-            <MenuItem sx={styles.menu}>
-              <Card sx={styles.card}>
-                <Box sx={{ ...styles.row, justifyContent: "wrap" }}>
-                  <Typography sx={styles.menuText}>
-                    {givenName.toString().replace(/\d/g, "")}
-                  </Typography>
-                  <Typography sx={styles.menuText}>
-                    {familyName.toString().replace(/\d/g, "")}
-                  </Typography>
-                </Box>
-                <Typography sx={styles.menuText}>{age}</Typography>
-                <Typography sx={styles.menuText}>{gender}</Typography>
-              </Card>
-            </MenuItem>
+            {data.map((patient, index) => {
+              return (
+                <MenuItem sx={styles.menu}>
+                  <Card
+                    sx={
+                      index === clickedIndex
+                        ? { ...styles.card, ...styles.cardClicked }
+                        : styles.card
+                    }
+                    onClick={() => handleClick(index)}
+                  >
+                    <Box sx={{ ...styles.row, justifyContent: "wrap" }}>
+                      <Typography sx={styles.menuText}>
+                        {patient.entry[0].resource.name[0].family
+                          .toString()
+                          .replace(/\d/g, "")}
+                      </Typography>
+                      <Typography sx={styles.menuText}>
+                        {patient.entry[0].resource.name[0].given
+                          .toString()
+                          .replace(/\d/g, "")}
+                      </Typography>
+                    </Box>
+                    <Typography sx={styles.menuText}>
+                      {patient.entry[0].resource.birthDate}
+                    </Typography>
+                    <Typography sx={styles.menuText}>
+                      {patient.entry[0].resource.gender}
+                    </Typography>
+                  </Card>
+                </MenuItem>
+              );
+            })}
+
             <Divider />
           </MenuList>
-          <Divider orientation="vertical" color="primary" flexItem />
-          <Box sx={styles.inputArea}>
+          <Divider
+            orientation="vertical"
+            color="#0E46A3"
+            sx={{ borderWidth: "1px" }}
+            flexItem
+          />
+          <Box sx={{ ...styles.inputArea, overflow: "auto" }}>
             <Box sx={(styles.row, styles.right)}>
               <Card sx={styles.info}>
                 <Card sx={styles.basicInfo}>
@@ -78,22 +99,37 @@ const EHR = () => {
                     <Typography sx={styles.text}>
                       {familyName.toString().replace(/\d/g, "")}
                     </Typography>
-                    <Typography sx={styles.text}>Birth Date: {age}</Typography>
+                    <Typography sx={styles.text}>
+                      Birth Date: {birthDate}
+                    </Typography>
                     <Typography sx={styles.text}>Gender: {gender}</Typography>
                   </Box>
                 </Card>
                 <Card sx={styles.basicInfo}>
                   <Typography sx={styles.subTitle}>Lab Test</Typography>
-                  <Box sx={{ ...styles.row, justifyContent: "wrap" }}></Box>
+                  <Box sx={{ ...styles.row, justifyContent: "wrap" }}>
+                    <Typography>...</Typography>
+                  </Box>
                 </Card>
                 <Card sx={styles.basicInfo}>
                   <Typography sx={styles.subTitle}>AI Diagnose</Typography>
-                  <Box sx={{ ...styles.row, justifyContent: "wrap" }}></Box>
+                  <Box sx={{ ...styles.row, justifyContent: "wrap" }}>
+                    <Typography>...</Typography>
+                  </Box>
                 </Card>
                 <Card sx={styles.basicInfo}>
                   <Typography sx={styles.subTitle}>Doctor Diagnose</Typography>
-                  <Box sx={{ ...styles.row, justifyContent: "wrap" }}></Box>
+                  <TextField
+                    multiline
+                    value={diagnose}
+                    sx={styles.doctorInput}
+                    onChange={handleChange}
+                  ></TextField>
                 </Card>
+                <Box sx={styles.row}>
+                  <Button variant="contained">Cancel</Button>
+                  <Button variant="contained">Save</Button>
+                </Box>
               </Card>
             </Box>
           </Box>
@@ -126,11 +162,11 @@ const styles = {
   title: {
     fontSize: "calc(3em + 0.5vw)",
     fontWeight: "bold",
-    color: "#4FA3F8F9",
+    color: "#0E46A3",
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
-    margin: "4vh",
+    margin: "2vh",
   },
   row: {
     display: "flex",
@@ -146,28 +182,34 @@ const styles = {
   menu: {
     height: "auto",
     width: "20vw",
+    display: "flex",
+    flexDirection: "column",
+    gap: "2vh",
   },
   menuText: {
     fontWeight: "bold",
-    fontSize: 32,
-    color: "white",
+    fontSize: 24,
+    color: "black",
   },
   text: {
     fontWeight: "bold",
-    fontSize: 32,
+    fontSize: 18,
     color: "black",
   },
   subTitle: {
     fontWeight: "bold",
-    fontSize: 32,
+    fontSize: 24,
     color: "Black",
   },
   card: {
     height: "100%",
     width: "100%",
-    backgroundColor: "#4FA3F8",
+    backgroundColor: "#D9D9D9",
     padding: "5%",
     marginBottom: "2%",
+  },
+  cardClicked: {
+    backgroundColor: "#378CE7",
   },
   right: {
     width: "90%",
@@ -177,13 +219,16 @@ const styles = {
     width: "100%",
     height: "100%",
     padding: "2%",
-    backgroundColor: "#FDFFF7",
+    backgroundColor: "#378CE7",
   },
   basicInfo: {
     width: "90%",
     height: "auto",
     padding: "2%",
     margin: "1%",
+  },
+  doctorInput: {
+    width: "100%",
   },
 };
 
