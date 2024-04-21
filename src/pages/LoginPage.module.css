@@ -1,0 +1,45 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    minHeight: 100vh;
+    background: #eceff1;
+}
+
+.formContainer {
+    background: white;
+    padding: 20px;
+    borderRadius: 8px;
+    boxShadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.formTitle {
+    marginBottom: 15px;
+    color: #333;
+    fontWeight: bold;
+}
+
+.inputField {
+    width: 100%;
+    padding: 10px;
+    marginBottom: 10px;
+    borderRadius: 5px;
+    border: 1px solid #ccc;
+}
+
+.loginButton {
+    width: 100%;
+    padding: 10px 20px;
+    color: white;
+    backgroundColor: #007BFF;
+    border: none;
+    borderRadius: 5px;
+    cursor: pointer;
+}
+
+.registerLink {
+    display: block;
+    marginTop: 20px;
+    color: #dc3545;
+    textDecoration: none;
+}
